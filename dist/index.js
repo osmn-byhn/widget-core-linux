@@ -73,35 +73,56 @@ export class DesktopWidget {
         }
     }
     async makePersistent(options) {
-        this.registry.addWidget(this.url, options, this.id);
-        const runnerPath = path.join(__dirname, "runner.js");
-        const command = `node ${runnerPath} ${this.id}`;
-        this.autostart.enable(this.id, this.url, command);
-        console.log(`Widget ${this.id} is now persistent and will autostart.`);
+        try {
+            const result = this.registry.addWidget(this.url, options, this.id);
+            if (!result.success)
+                return false;
+            const runnerPath = path.join(__dirname, "runner.js");
+            const command = `node ${runnerPath} ${this.id}`;
+            return this.autostart.enable(this.id, this.url, command);
+        }
+        catch (e) {
+            return false;
+        }
     }
     stopPersistence() {
-        this.autostart.disable(this.id);
-        this.registry.removeWidget(this.id);
-        DesktopWidget.killProcess(this.id);
-        console.log(`Widget ${this.id} removed from persistence and process killed.`);
+        try {
+            const autostartSuccess = this.autostart.disable(this.id);
+            const registrySuccess = this.registry.removeWidget(this.id);
+            const killSuccess = DesktopWidget.killProcess(this.id);
+            return autostartSuccess && registrySuccess && killSuccess;
+        }
+        catch (e) {
+            return false;
+        }
     }
     activate() {
-        if (!this.id)
-            throw new Error("Widget must be persistent to be activated");
-        const widget = this.registry.getWidget(this.id);
-        if (!widget)
-            throw new Error("Widget not found in registry");
-        this.registry.activateWidget(this.id);
-        const runnerPath = path.join(__dirname, "runner.js");
-        const command = `node ${runnerPath} ${this.id}`;
-        this.autostart.enable(this.id, widget.url, command);
-        console.log(`Widget ${this.id} is now activated and autostart enabled.`);
+        try {
+            if (!this.id)
+                return false;
+            const widget = this.registry.getWidget(this.id);
+            if (!widget)
+                return false;
+            const regSuccess = this.registry.activateWidget(this.id);
+            const runnerPath = path.join(__dirname, "runner.js");
+            const command = `node ${runnerPath} ${this.id}`;
+            const autoSuccess = this.autostart.enable(this.id, widget.url, command);
+            return regSuccess && autoSuccess;
+        }
+        catch (e) {
+            return false;
+        }
     }
     deactivate() {
-        this.registry.deactivateWidget(this.id);
-        this.autostart.disable(this.id);
-        DesktopWidget.killProcess(this.id);
-        console.log(`Widget ${this.id} is now deactivated, autostart disabled, and process killed.`);
+        try {
+            const regSuccess = this.registry.deactivateWidget(this.id);
+            const autoSuccess = this.autostart.disable(this.id);
+            const killSuccess = DesktopWidget.killProcess(this.id);
+            return regSuccess && autoSuccess && killSuccess;
+        }
+        catch (e) {
+            return false;
+        }
     }
     static listWidgets() {
         return new WidgetRegistry().getWidgets();
@@ -113,43 +134,66 @@ export class DesktopWidget {
         return new WidgetRegistry().getWidgets().filter(w => !w.active);
     }
     static activateById(id) {
-        const registry = new WidgetRegistry();
-        const autostart = new AutostartManager();
-        const widget = registry.getWidget(id);
-        if (!widget)
-            throw new Error(`Widget ${id} not found in registry`);
-        registry.activateWidget(id);
-        const runnerPath = path.join(__dirname, "runner.js");
-        const command = `node ${runnerPath} ${id}`;
-        autostart.enable(id, widget.url, command);
-        console.log(`Widget ${id} activated via ID.`);
+        try {
+            const registry = new WidgetRegistry();
+            const autostart = new AutostartManager();
+            const widget = registry.getWidget(id);
+            if (!widget)
+                return false;
+            const regSuccess = registry.activateWidget(id);
+            const runnerPath = path.join(__dirname, "runner.js");
+            const command = `node ${runnerPath} ${id}`;
+            const autoSuccess = autostart.enable(id, widget.url, command);
+            return regSuccess && autoSuccess;
+        }
+        catch (e) {
+            return false;
+        }
     }
     static deactivateById(id) {
-        const registry = new WidgetRegistry();
-        const autostart = new AutostartManager();
-        registry.deactivateWidget(id);
-        autostart.disable(id);
-        DesktopWidget.killProcess(id);
-        console.log(`Widget ${id} deactivated via ID and process killed.`);
+        try {
+            const registry = new WidgetRegistry();
+            const autostart = new AutostartManager();
+            const regSuccess = registry.deactivateWidget(id);
+            const autoSuccess = autostart.disable(id);
+            const killSuccess = DesktopWidget.killProcess(id);
+            return regSuccess && autoSuccess && killSuccess;
+        }
+        catch (e) {
+            return false;
+        }
     }
     static removeById(id) {
-        const registry = new WidgetRegistry();
-        const autostart = new AutostartManager();
-        registry.removeWidget(id);
-        autostart.disable(id);
-        DesktopWidget.killProcess(id);
-        console.log(`Widget ${id} permanently removed via ID and process killed.`);
+        try {
+            const registry = new WidgetRegistry();
+            const autostart = new AutostartManager();
+            const regSuccess = registry.removeWidget(id);
+            const autoSuccess = autostart.disable(id);
+            const killSuccess = DesktopWidget.killProcess(id);
+            return regSuccess && autoSuccess && killSuccess;
+        }
+        catch (e) {
+            return false;
+        }
     }
     static stopAll() {
-        const registry = new WidgetRegistry();
-        const autostart = new AutostartManager();
-        const widgets = registry.getWidgets();
-        for (const w of widgets) {
-            registry.deactivateWidget(w.id);
-            autostart.disable(w.id);
+        try {
+            const registry = new WidgetRegistry();
+            const autostart = new AutostartManager();
+            const widgets = registry.getWidgets();
+            let success = true;
+            for (const w of widgets) {
+                const regSuccess = registry.deactivateWidget(w.id);
+                const autoSuccess = autostart.disable(w.id);
+                if (!regSuccess || !autoSuccess)
+                    success = false;
+            }
+            const killSuccess = DesktopWidget.killAllProcesses();
+            return success && killSuccess;
         }
-        DesktopWidget.killAllProcesses();
-        console.log("All widgets deactivated and processes killed.");
+        catch (e) {
+            return false;
+        }
     }
     static killAllProcesses() {
         const { execSync } = createRequire(import.meta.url)("child_process");
@@ -160,43 +204,45 @@ export class DesktopWidget {
             else {
                 execSync(`pkill -f "runner.js"`);
             }
+            return true;
         }
         catch (e) {
-            // Ignore if no processes found
+            return true; // Still okay if none found
         }
     }
     static killProcess(id) {
         const { execSync } = createRequire(import.meta.url)("child_process");
         try {
             if (process.platform === 'win32') {
-                // Windows: Kill node process that has the ID in its command line
-                // Use wmic or taskkill with filtering
                 try {
                     execSync(`wmic process where "CommandLine like '%runner.js %${id}%'" delete`);
                 }
-                catch (e) {
-                    // Ignore if not found
-                }
+                catch (e) { }
             }
             else {
-                // Linux/macOS: Use pkill with full command line matching
                 execSync(`pkill -f "runner.js ${id}"`);
             }
+            return true;
         }
         catch (e) {
-            // pkill returns non-zero if no process matched, which is fine
+            return true; // pkill returns non-zero if no process matched, which is fine
         }
     }
     launchStandalone() {
-        if (!this.id)
-            throw new Error("Widget must be persistent to launch standalone");
-        const runnerPath = path.join(__dirname, "runner.js");
-        const child = spawn("node", [runnerPath, this.id], {
-            detached: true,
-            stdio: 'ignore'
-        });
-        child.unref();
-        console.log(`Launched standalone widget process (PID: ${child.pid})`);
+        try {
+            if (!this.id)
+                return false;
+            const runnerPath = path.join(__dirname, "runner.js");
+            const child = spawn("node", [runnerPath, this.id], {
+                detached: true,
+                stdio: 'ignore'
+            });
+            child.unref();
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
     }
     validateURL(url) {
         try {

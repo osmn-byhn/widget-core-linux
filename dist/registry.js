@@ -8,12 +8,19 @@ export class WidgetRegistry {
         this.ensureConfigDir();
     }
     ensureConfigDir() {
-        const dir = path.dirname(this.configPath);
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
+        try {
+            const dir = path.dirname(this.configPath);
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            if (!fs.existsSync(this.configPath)) {
+                fs.writeFileSync(this.configPath, JSON.stringify([], null, 2));
+            }
+            return true;
         }
-        if (!fs.existsSync(this.configPath)) {
-            fs.writeFileSync(this.configPath, JSON.stringify([], null, 2));
+        catch (e) {
+            console.error("Failed to ensure config directory:", e);
+            return false;
         }
     }
     getWidgets() {
@@ -29,31 +36,49 @@ export class WidgetRegistry {
     saveWidgets(widgets) {
         try {
             fs.writeFileSync(this.configPath, JSON.stringify(widgets, null, 2));
+            return true;
         }
         catch (e) {
             console.error("Failed to save widget registry:", e);
+            return false;
         }
     }
     addWidget(url, options, id) {
-        const widgets = this.getWidgets();
-        const finalId = id || Math.random().toString(36).substring(2, 11);
-        widgets.push({ id: finalId, url, options, active: true });
-        this.saveWidgets(widgets);
-        return finalId;
+        try {
+            const widgets = this.getWidgets();
+            const finalId = id || Math.random().toString(36).substring(2, 11);
+            widgets.push({ id: finalId, url, options, active: true });
+            const success = this.saveWidgets(widgets);
+            return { success, id: finalId };
+        }
+        catch (e) {
+            console.error("Failed to add widget:", e);
+            return { success: false };
+        }
     }
     removeWidget(id) {
-        const widgets = this.getWidgets().filter(w => w.id !== id);
-        this.saveWidgets(widgets);
+        try {
+            const widgets = this.getWidgets().filter(w => w.id !== id);
+            return this.saveWidgets(widgets);
+        }
+        catch (e) {
+            return false;
+        }
     }
     updateWidget(id, updates) {
-        const widgets = this.getWidgets().map(w => w.id === id ? { ...w, ...updates } : w);
-        this.saveWidgets(widgets);
+        try {
+            const widgets = this.getWidgets().map(w => w.id === id ? { ...w, ...updates } : w);
+            return this.saveWidgets(widgets);
+        }
+        catch (e) {
+            return false;
+        }
     }
     activateWidget(id) {
-        this.updateWidget(id, { active: true });
+        return this.updateWidget(id, { active: true });
     }
     deactivateWidget(id) {
-        this.updateWidget(id, { active: false });
+        return this.updateWidget(id, { active: false });
     }
     getWidget(id) {
         return this.getWidgets().find(w => w.id === id);

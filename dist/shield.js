@@ -1,14 +1,14 @@
 // Bu kod, widget yüklenmeden önce 'preload' script olarak çalıştırılmalı.
-const createShield = () => {
+export const createShield = (windowObj) => {
     const safeGlobals = {
-        console: window.console,
-        setTimeout: window.setTimeout,
+        console: windowObj.console,
+        setTimeout: windowObj.setTimeout,
         // fs, process, vb. kesinlikle BURADA OLMAMALI
     };
     // Global nesneyi dondur ve tehlikeli her şeyi sil
     const dangerousKeys = ["process", "require", "Buffer", "global"];
     dangerousKeys.forEach((key) => {
-        Object.defineProperty(window, key, {
+        Object.defineProperty(windowObj, key, {
             get: () => {
                 throw new Error(`Security Shield: Access to ${key} is forbidden.`);
             },
@@ -17,5 +17,4 @@ const createShield = () => {
     });
     return safeGlobals;
 };
-export {};
 //# sourceMappingURL=shield.js.map

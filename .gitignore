@@ -1,3 +1,4 @@
 /src/test.ts
 *.log
 node_modules
+.npmrc

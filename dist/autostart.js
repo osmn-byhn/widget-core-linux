@@ -21,31 +21,44 @@ export class AutostartManager {
         }
     }
     enable(id, name, command) {
-        if (this.platform === 'linux') {
-            this.enableLinux(id, name, command);
+        try {
+            if (this.platform === 'linux') {
+                return this.enableLinux(id, name, command);
+            }
+            else if (this.platform === 'win32') {
+                return this.enableWindows(id, command);
+            }
+            else if (this.platform === 'darwin') {
+                return this.enableMacOS(id, name, command);
+            }
+            return false;
         }
-        else if (this.platform === 'win32') {
-            this.enableWindows(id, command);
-        }
-        else if (this.platform === 'darwin') {
-            this.enableMacOS(id, name, command);
+        catch (e) {
+            return false;
         }
     }
     disable(id) {
-        if (this.platform === 'linux') {
-            this.disableLinux(id);
+        try {
+            if (this.platform === 'linux') {
+                return this.disableLinux(id);
+            }
+            else if (this.platform === 'win32') {
+                return this.disableWindows(id);
+            }
+            else if (this.platform === 'darwin') {
+                return this.disableMacOS(id);
+            }
+            return false;
         }
-        else if (this.platform === 'win32') {
-            this.disableWindows(id);
-        }
-        else if (this.platform === 'darwin') {
-            this.disableMacOS(id);
+        catch (e) {
+            return false;
         }
     }
     enableLinux(id, name, command) {
-        const dir = path.join(os.homedir(), '.config', 'autostart');
-        const file = path.join(dir, `widget-${id}.desktop`);
-        const content = `[Desktop Entry]
+        try {
+            const dir = path.join(os.homedir(), '.config', 'autostart');
+            const file = path.join(dir, `widget-${id}.desktop`);
+            const content = `[Desktop Entry]
 Type=Application
 Name=Desktop Widget - ${name}
 Exec=${command}
@@ -54,12 +67,23 @@ NoDisplay=false
 X-GNOME-Autostart-enabled=true
 Comment=Auto-started desktop widget
 `;
-        fs.writeFileSync(file, content);
+            fs.writeFileSync(file, content);
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
     }
     disableLinux(id) {
-        const file = path.join(os.homedir(), '.config', 'autostart', `widget-${id}.desktop`);
-        if (fs.existsSync(file))
-            fs.unlinkSync(file);
+        try {
+            const file = path.join(os.homedir(), '.config', 'autostart', `widget-${id}.desktop`);
+            if (fs.existsSync(file))
+                fs.unlinkSync(file);
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
     }
     enableWindows(id, command) {
         // Use reg.exe to add to HKCU Run
@@ -68,9 +92,11 @@ Comment=Auto-started desktop widget
             const valueName = `Widget_${id}`;
             // Escape quotes in command if necessary
             execSync(`reg add "${key}" /v "${valueName}" /t REG_SZ /d "${command.replace(/"/g, '\\"')}" /f`);
+            return true;
         }
         catch (e) {
             console.error("Failed to enable Windows autostart:", e);
+            return false;
         }
     }
     disableWindows(id) {
@@ -78,15 +104,18 @@ Comment=Auto-started desktop widget
             const key = `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run`;
             const valueName = `Widget_${id}`;
             execSync(`reg delete "${key}" /v "${valueName}" /f`);
+            return true;
         }
         catch (e) {
             // Might not exist, which is fine
+            return true;
         }
     }
     enableMacOS(id, name, command) {
-        const dir = path.join(os.homedir(), 'Library', 'LaunchAgents');
-        const file = path.join(dir, `com.widget.${id}.plist`);
-        const content = `<?xml version="1.0" encoding="UTF-8"?>
+        try {
+            const dir = path.join(os.homedir(), 'Library', 'LaunchAgents');
+            const file = path.join(dir, `com.widget.${id}.plist`);
+            const content = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -102,12 +131,23 @@ Comment=Auto-started desktop widget
     <true/>
 </dict>
 </plist>`;
-        fs.writeFileSync(file, content);
+            fs.writeFileSync(file, content);
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
     }
     disableMacOS(id) {
-        const file = path.join(os.homedir(), 'Library', 'LaunchAgents', `com.widget.${id}.plist`);
-        if (fs.existsSync(file))
-            fs.unlinkSync(file);
+        try {
+            const file = path.join(os.homedir(), 'Library', 'LaunchAgents', `com.widget.${id}.plist`);
+            if (fs.existsSync(file))
+                fs.unlinkSync(file);
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
     }
 }
 //# sourceMappingURL=autostart.js.map

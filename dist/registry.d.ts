@@ -10,12 +10,15 @@ export declare class WidgetRegistry {
     constructor();
     private ensureConfigDir;
     getWidgets(): RegisteredWidget[];
-    saveWidgets(widgets: RegisteredWidget[]): void;
-    addWidget(url: string, options: WidgetOptions, id?: string): string;
-    removeWidget(id: string): void;
-    updateWidget(id: string, updates: Partial<RegisteredWidget>): void;
-    activateWidget(id: string): void;
-    deactivateWidget(id: string): void;
+    saveWidgets(widgets: RegisteredWidget[]): boolean;
+    addWidget(url: string, options: WidgetOptions, id?: string): {
+        success: boolean;
+        id?: string;
+    };
+    removeWidget(id: string): boolean;
+    updateWidget(id: string, updates: Partial<RegisteredWidget>): boolean;
+    activateWidget(id: string): boolean;
+    deactivateWidget(id: string): boolean;
     getWidget(id: string): RegisteredWidget | undefined;
 }
 //# sourceMappingURL=registry.d.ts.map
