@@ -1,0 +1,49 @@
+{
+  "name": "@osmn-byhn/widget-core",
+  "version": "1.0.0",
+  "description": "Cross-platform desktop widget manager library.",
+  "author": "Osman Beyhan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/osmn-byhn/widget-core.git"
+  },
+  "bugs": {
+    "url": "https://github.com/osmn-byhn/widget-core/issues"
+  },
+  "homepage": "https://widget-core.osmanbeyhan.com",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "install": "node-gyp rebuild"
+  },
+  "keywords": [
+    "widget",
+    "desktop",
+    "cross-platform",
+    "gui",
+    "webkit",
+    "electron-alternative"
+  ],
+  "files": [
+    "dist",
+    "native",
+    "binding.gyp",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "gypfile": true,
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "node-addon-api": "^8.7.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
+  }
+}
