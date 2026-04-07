@@ -111,10 +111,10 @@ gboolean create_widget_idle(gpointer data) {
     // === X11 / XWayland: EWMH keep-below ===
     if (!wayland_pinned && task->options->sticky) {
         gtk_window_stick(GTK_WINDOW(window));
-        // Set keep_below hint BEFORE showing — WM respects this on map
+        // Set keep_below hint: WM respects this on map
         gtk_window_set_keep_below(GTK_WINDOW(window), TRUE);
-        // DESKTOP hint removes the window from all WM management lists
-        gtk_window_set_type_hint(GTK_WINDOW(window), GDK_WINDOW_TYPE_HINT_DESKTOP);
+        // NORMAL hint: Safest way to ensure visibility; we use set_decorated(FALSE) to keep it widget-like
+        gtk_window_set_type_hint(GTK_WINDOW(window), GDK_WINDOW_TYPE_HINT_NORMAL);
     }
 
     GdkScreen* screen = gtk_widget_get_screen(window);
@@ -170,7 +170,7 @@ gboolean create_widget_idle(gpointer data) {
     
     // Modern transparency: apply via CSS provider
     GtkCssProvider* provider = gtk_css_provider_new();
-    gtk_css_provider_load_from_data(provider, "window, .main, body { background: transparent !important; }", -1, NULL);
+    gtk_css_provider_load_from_data(provider, "window, .main, body { background-color: rgba(0,0,0,0); }", -1, NULL);
     gtk_style_context_add_provider(gtk_widget_get_style_context(window),
                                    GTK_STYLE_PROVIDER(provider),
                                    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);

@@ -1,23 +1,5 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-// --- ENVIRONMENT FIXES ---
-// 1. Signal Conflict Fix: Tell WebKit to use SIGUSR2 (avoids Segfault/Error)
-process.env.JSC_SIGNAL_FOR_GC = 'SIGUSR2';
-
-// 2. Visibility Fix: Disable compositing mode (essential for some GPU/Wayland drivers)
-process.env.WEBKIT_DISABLE_COMPOSITING_MODE = '1';
-
-// 3. Backend Fix: Automatic selection
-const isGnome = process.env.XDG_CURRENT_DESKTOP?.toUpperCase().includes('GNOME');
-const isWayland = process.env.XDG_SESSION_TYPE === 'wayland';
-
-if (isGnome && isWayland) {
-    // GNOME Wayland needs XWayland to support 'keep-below' layer
-    process.env.GDK_BACKEND = 'x11';
-}
-// -------------------------
-
 import { DesktopWidget } from '../dist/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -28,20 +10,24 @@ console.log('📁 Loading:', htmlPath);
 
 try {
     const widget = new DesktopWidget(htmlPath, {
-        width: 450,
-        height: 250,
-        x: 100,
-        y: 100,
-        opacity: 0.95,
+        width: 350,
+        height: 180,
+        x: 50,
+        y: 50,
+        opacity: 1,
         interactive: false, // Click through to desktop
         sticky: true,       // Stay on bottom
-        blur: true          // Apply backdrop blur if supported
+        blur: false          // Apply backdrop blur if supported
     });
 
     console.log('✅ Widget active! Check your desktop.');
     console.log('ID:', widget.id);
+    console.log('Press Ctrl+C to close the widget.');
 
-    // Keep the process alive
+    // KEEP PROCESS ALIVE: Without this, Node.js exits immediately 
+    // and the native window is destroyed.
+    setInterval(() => { }, 1000);
+
     process.on('SIGINT', () => {
         console.log('\n🛑 Shutting down...');
         process.exit(0);
