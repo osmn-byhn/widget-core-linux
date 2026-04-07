@@ -22,7 +22,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "install": "node-gyp rebuild",
-    "demo": "WEBKIT_DISABLE_ACCELERATED_COMPOSITING=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 GDK_BACKEND=x11 node examples/demo-widget.js"
+    "demo": "LIBGL_ALWAYS_SOFTWARE=1 WEBKIT_USE_GL=software WEBKIT_DISABLE_ACCELERATED_COMPOSITING=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 GTK_CSD=0 GDK_BACKEND=x11 node examples/demo-widget.js"
   },
   "keywords": [
     "widget",
