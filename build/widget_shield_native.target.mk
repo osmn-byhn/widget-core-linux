@@ -11,8 +11,8 @@ DEFS_Debug := \
 	'-D_FILE_OFFSET_BITS=64' \
 	'-D_LARGEFILE_SOURCE' \
 	'-D__STDC_FORMAT_MACROS' \
-	'-DNAPI_DISABLE_CPP_EXCEPTIONS' \
 	'-DHAVE_GTK_LAYER_SHELL' \
+	'-DNAPI_DISABLE_CPP_EXCEPTIONS' \
 	'-DBUILDING_NODE_EXTENSION' \
 	'-DDEBUG' \
 	'-D_DEBUG'
@@ -104,7 +104,7 @@ INCS_Debug := \
 	-I/home/shiyakami/.cache/node-gyp/22.22.0/deps/zlib \
 	-I/home/shiyakami/.cache/node-gyp/22.22.0/deps/v8/include \
 	-I$(srcdir)/native \
-	-I/home/shiyakami/Libraries/widget-core/node_modules/node-addon-api
+	-I/home/shiyakami/Libraries/widget-core-linux/node_modules/node-addon-api
 
 DEFS_Release := \
 	'-DNODE_GYP_MODULE_NAME=widget_shield_native' \
@@ -115,8 +115,8 @@ DEFS_Release := \
 	'-D_FILE_OFFSET_BITS=64' \
 	'-D_LARGEFILE_SOURCE' \
 	'-D__STDC_FORMAT_MACROS' \
-	'-DNAPI_DISABLE_CPP_EXCEPTIONS' \
 	'-DHAVE_GTK_LAYER_SHELL' \
+	'-DNAPI_DISABLE_CPP_EXCEPTIONS' \
 	'-DBUILDING_NODE_EXTENSION'
 
 # Flags passed to all source files.
@@ -207,7 +207,7 @@ INCS_Release := \
 	-I/home/shiyakami/.cache/node-gyp/22.22.0/deps/zlib \
 	-I/home/shiyakami/.cache/node-gyp/22.22.0/deps/v8/include \
 	-I$(srcdir)/native \
-	-I/home/shiyakami/Libraries/widget-core/node_modules/node-addon-api
+	-I/home/shiyakami/Libraries/widget-core-linux/node_modules/node-addon-api
 
 OBJS := \
 	$(obj).target/$(TARGET)/native/main.o \

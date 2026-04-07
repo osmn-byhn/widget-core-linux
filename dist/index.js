@@ -198,12 +198,7 @@ export class DesktopWidget {
     static killAllProcesses() {
         const { execSync } = createRequire(import.meta.url)("child_process");
         try {
-            if (process.platform === 'win32') {
-                execSync(`wmic process where "CommandLine like '%runner.js%'" delete`);
-            }
-            else {
-                execSync(`pkill -f "runner.js"`);
-            }
+            execSync(`pkill -f "runner.js"`);
             return true;
         }
         catch (e) {
@@ -213,15 +208,7 @@ export class DesktopWidget {
     static killProcess(id) {
         const { execSync } = createRequire(import.meta.url)("child_process");
         try {
-            if (process.platform === 'win32') {
-                try {
-                    execSync(`wmic process where "CommandLine like '%runner.js %${id}%'" delete`);
-                }
-                catch (e) { }
-            }
-            else {
-                execSync(`pkill -f "runner.js ${id}"`);
-            }
+            execSync(`pkill -f "runner.js ${id}"`);
             return true;
         }
         catch (e) {

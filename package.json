@@ -1,7 +1,7 @@
 {
   "name": "@osmn-byhn/widget-core",
   "version": "1.0.0",
-  "description": "Cross-platform desktop widget manager library.",
+  "description": "High-performance desktop widget manager library for Linux.",
   "author": "Osman Beyhan",
   "license": "MIT",
   "repository": {
@@ -24,7 +24,8 @@
   "keywords": [
     "widget",
     "desktop",
-    "cross-platform",
+    "linux",
+    "gtk",
     "gui",
     "webkit",
     "electron-alternative"
