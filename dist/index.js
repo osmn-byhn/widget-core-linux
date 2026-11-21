@@ -1,6 +1,7 @@
 import { createRequire } from "module";
 import { spawn } from "child_process";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import { WidgetRegistry } from "./registry.js";
 import { AutostartManager } from "./autostart.js";
@@ -21,6 +22,16 @@ catch (e) {
         updatePosition: (h, x, y) => console.log(`[Mock Shield] Position -> (${x}, ${y})`)
     };
 }
+function readWidgetOptions(options) {
+    if (!options.configPath)
+        return options;
+    const configPath = path.resolve(options.configPath);
+    const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    const css = options.css ?? config.css;
+    const js = options.js ?? config.js;
+    return { ...config, ...options, ...(css === undefined ? {} : { css }), ...(js === undefined ? {} : { js }),
+        keys: { ...config.keys, ...options.keys }, data: { ...config.data, ...options.data } };
+}
 export class DesktopWidget {
     url;
     nativeHandle;
@@ -30,6 +41,7 @@ export class DesktopWidget {
     autostart = new AutostartManager();
     constructor(url = "", options) {
         this.url = url;
+        options = readWidgetOptions(options);
         this.id = Math.random().toString(36).substring(2, 11);
         if (url) {
             this.validateURL(url);

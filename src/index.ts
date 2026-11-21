@@ -1,6 +1,7 @@
 import { createRequire } from "module";
 import { spawn } from "child_process";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import { WidgetRegistry } from "./registry.js";
 import { AutostartManager } from "./autostart.js";
@@ -35,6 +36,26 @@ export interface WidgetOptions {
   html?: string;
   scroll?: boolean;
   permissions?: string[]; // e.g., ['network', 'disk-read']
+  /** Path to a widget JSON file. Relative paths resolve from the process working directory. */
+  configPath?: string;
+  /** CSS text injected into the widget document. */
+  css?: string;
+  /** JavaScript source injected into the widget document. */
+  js?: string;
+  /** Arbitrary values exposed as window.widgetConfig.keys. */
+  keys?: Record<string, unknown>;
+  /** Arbitrary values exposed as window.widgetConfig.data. */
+  data?: Record<string, unknown>;
+}
+
+function readWidgetOptions(options: WidgetOptions): WidgetOptions {
+  if (!options.configPath) return options;
+  const configPath = path.resolve(options.configPath);
+  const config = JSON.parse(fs.readFileSync(configPath, "utf8")) as Partial<WidgetOptions>;
+  const css = options.css ?? config.css;
+  const js = options.js ?? config.js;
+  return { ...config, ...options, ...(css === undefined ? {} : { css }), ...(js === undefined ? {} : { js }),
+    keys: { ...config.keys, ...options.keys }, data: { ...config.data, ...options.data } };
 }
 
 export class DesktopWidget {
@@ -48,6 +69,7 @@ export class DesktopWidget {
     private url: string = "",
     options: WidgetOptions,
   ) {
+    options = readWidgetOptions(options);
     this.id = Math.random().toString(36).substring(2, 11);
     if (url) {
         this.validateURL(url);

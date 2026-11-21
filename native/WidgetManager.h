@@ -14,6 +14,9 @@ struct WidgetOptions {
     bool sticky;
     bool interactive;
     std::string html;
+    std::string css;
+    std::string js;
+    std::string config;
     bool scroll;
 };
 
