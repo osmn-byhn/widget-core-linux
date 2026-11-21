@@ -108,6 +108,26 @@ const clock = new DesktopWidget("", {
 });
 ```
 
+### Widget başına JSON, CSS ve JavaScript
+
+Her widget için bir JSON dosyası oluşturup `configPath` ile gösterebilirsiniz. `css` ve `js` alanları belgeye eklenir; `keys` ve `data` değerleri `window.widgetConfig` üzerinden okunur.
+
+```json
+{
+  "css": "body { color: #fff; background: transparent; }",
+  "js": "document.querySelector('#title').textContent = window.widgetConfig.keys.title;",
+  "keys": { "title": "Merhaba" },
+  "data": { "refreshMs": 5000 }
+}
+```
+
+```ts
+new DesktopWidget("file:///widgets/clock/index.html", {
+  width: 360, height: 180, x: 20, y: 20,
+  configPath: "/widgets/clock/widget.json"
+});
+```
+
 ---
 
 ## 🛠️ API Documentation
@@ -126,6 +146,9 @@ const clock = new DesktopWidget("", {
 | `interactive` | `boolean` | `true` | Allow clicks/scrolls. |
 | `scroll` | `boolean` | `true` | Show/hide scrollbars. |
 | `permissions` | `string[]` | `[]` | List of allowed system capabilities. |
+| `configPath` | `string` | — | Widget ayar JSON dosyasının yolu. |
+| `css` / `js` | `string` | — | Webview'e eklenecek CSS/JavaScript kaynak metni. |
+| `keys` / `data` | `object` | `{}` | `window.widgetConfig.keys` ve `.data` olarak sunulan veriler. |
 
 ---
 

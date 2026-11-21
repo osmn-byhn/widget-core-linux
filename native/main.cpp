@@ -22,6 +22,14 @@ Napi::Value CreateWidget(const Napi::CallbackInfo& info) {
     options.sticky = opts.Has("sticky") ? opts.Get("sticky").ToBoolean().Value() : true;
     options.interactive = opts.Has("interactive") ? opts.Get("interactive").ToBoolean().Value() : true;
     options.html = opts.Has("html") ? opts.Get("html").ToString().Utf8Value() : "";
+    options.css = opts.Has("css") ? opts.Get("css").ToString().Utf8Value() : "";
+    options.js = opts.Has("js") ? opts.Get("js").ToString().Utf8Value() : "";
+    Napi::Object config = Napi::Object::New(env);
+    if (opts.Has("keys")) config.Set("keys", opts.Get("keys"));
+    if (opts.Has("data")) config.Set("data", opts.Get("data"));
+    Napi::Value serializedConfig = env.Global().Get("JSON").As<Napi::Object>()
+        .Get("stringify").As<Napi::Function>().Call(env.Global().Get("JSON"), { config });
+    options.config = serializedConfig.As<Napi::String>().Utf8Value();
     options.scroll = opts.Has("scroll") ? opts.Get("scroll").ToBoolean().Value() : true;
 
     void* handle = WidgetManager::CreateWidget(url, options);

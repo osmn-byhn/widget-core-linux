@@ -10,6 +10,16 @@ export interface WidgetOptions {
     html?: string;
     scroll?: boolean;
     permissions?: string[];
+    /** Path to a widget JSON file. Relative paths resolve from the process working directory. */
+    configPath?: string;
+    /** CSS text injected into the widget document. */
+    css?: string;
+    /** JavaScript source injected into the widget document. */
+    js?: string;
+    /** Arbitrary values exposed as window.widgetConfig.keys. */
+    keys?: Record<string, unknown>;
+    /** Arbitrary values exposed as window.widgetConfig.data. */
+    data?: Record<string, unknown>;
 }
 export declare class DesktopWidget {
     private url;
